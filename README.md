@@ -70,13 +70,14 @@ This application is pre-configured with a `vercel.json` file for easy serverless
 2. Log in to [Vercel](https://vercel.com/) and click **Add New** -> **Project**.
 3. Import your GitHub repository.
 4. Keep all the default settings and click **Deploy**.
-5. *Note: The app will initially deploy using a temporary SQLite database in `/tmp`. This means your todos will work, but the data will be lost when Vercel spins down the serverless function.*
+5. *Note: The app will initially deploy using a temporary SQLite database in `/tmp`. This means your todos will work, but the data will be lost
+    when Vercel spins down the serverless function. It may fail also so you need to create a Database on vercel*
 
 ### Phase 2: Setup Vercel Postgres (Permanent Storage)
 To make your data persist permanently, connect a PostgreSQL database:
 1. In your Vercel Dashboard, go to your newly deployed project.
 2. Click on the **Storage** tab at the top.
-3. Click **Connect Database** (or **Connect Store**), select **Postgres**, and click **Continue**.
+3. Click **Connect Database** (or **Connect Store**), select **Neon Postgres**, and click **Continue**.
 4. Accept the terms, choose a database name (e.g., `flask-todo-db`), pick a region close to your users, and click **Create**.
 5. When prompted, ensure the database is connected to all environments (Production, Preview, Development) and click **Connect**.
 6. *Vercel automatically injects the required `POSTGRES_URL` environment variable into your project.*

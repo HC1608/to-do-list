@@ -4,8 +4,11 @@ from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 
-# /// = relative path, //// = absolute path
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
+# Production Best Practice: Use environment variable for the database.
+# Fallback to local SQLite database for local development.
+database_uri = os.environ.get('DATABASE_URL', 'sqlite:///db.sqlite')
+
+app.config['SQLALCHEMY_DATABASE_URI'] = database_uri
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 

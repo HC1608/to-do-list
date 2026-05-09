@@ -5,8 +5,18 @@ from flask_sqlalchemy import SQLAlchemy
 app = Flask(__name__)
 
 # Production Best Practice: Use environment variable for the database.
-# Fallback to local SQLite database for local development.
-database_uri = os.environ.get('DATABASE_URL', 'sqlite:///db.sqlite')
+database_uri = os.environ.get('POSTGRES_URL') or os.environ.get('DATABASE_URL')
+
+if database_uri and database_uri.startswith("postgres://"):
+    # Fix for older PostgreSQL URIs (SQLAlchemy 1.4+ requires postgresql://)
+    database_uri = database_uri.replace("postgres://", "postgresql://", 1)
+elif not database_uri:
+    # On Vercel, the filesystem is read-only except for /tmp.
+    if os.environ.get('VERCEL'):
+        database_uri = 'sqlite:////tmp/db.sqlite'
+    else:
+        # Fallback to local SQLite database for local development.
+        database_uri = 'sqlite:///db.sqlite'
 
 app.config['SQLALCHEMY_DATABASE_URI'] = database_uri
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -17,6 +27,11 @@ class Todo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100))
     complete = db.Column(db.Boolean)
+
+# Ensure tables are created when the application starts
+# This is necessary for serverless environments like Vercel where __main__ does not run
+with app.app_context():
+    db.create_all()
 
 
 @app.route("/")
@@ -50,6 +65,4 @@ def delete(todo_id):
     return redirect(url_for("home"))
 
 if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()
     app.run(debug=True)
